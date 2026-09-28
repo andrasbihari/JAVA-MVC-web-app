@@ -23,59 +23,63 @@ public class AuthService {
     /**
      * Regisztrál egy új vevőt az adatbázisba.
      */
+    /**
+     * Regisztrál egy új vevőt az adatbázisba - SÓZOTT verzió
+     */
     public String registerVevo(Vevo vevo, String plainPassword) {
-        // 1. Email formátum ellenőrzése
         if (vevo.getEmail() == null || !emailPattern.matcher(vevo.getEmail()).matches()) {
             return "Hiba: Érvénytelen email formátum!";
         }
 
-        // 2. Email egyediség ellenőrzése
         if (vevoRepository.existsByEmail(vevo.getEmail())) {
             return "Hiba: Ez az email cím már regisztrálva van!";
         }
 
-        // 3. Jelszó SHA-512 hashelése és mentése
-        String hashedPassword = hashPassword(plainPassword);
+        // A jelszó hasheléséhez most átadjuk az email címet is, mint egyedi "sót"
+        String hashedPassword = hashPasswordWithSalt(plainPassword, vevo.getEmail());
         vevo.setPwHash(hashedPassword);
 
-        // 4. Mentés az Oracle adatbázisba
         vevoRepository.save(vevo);
         return "SUCCESS";
     }
 
     /**
-     * Bejelentkezés ellenőrzése email és nyers jelszó alapján.
+     * Bejelentkezés ellenőrzése - SÓZOTT verzió
      */
     public Optional<Vevo> login(String email, String plainPassword) {
         Optional<Vevo> oVevo = vevoRepository.findByEmail(email);
         
         if (oVevo.isPresent()) {
             Vevo vevo = oVevo.get();
-            // A megadott nyers jelszót is lehasheljük, és összehasonlítjuk a DB-ben lévővel
-            String inputHash = hashPassword(plainPassword);
+            // Bejelentkezéskor is az email címet használjuk sóként a generáláshoz
+            String inputHash = hashPasswordWithSalt(plainPassword, email);
             if (vevo.getPwHash().equals(inputHash)) {
-                return Optional.of(vevo); // Sikeres belépés, visszaadjuk a vevőt
+                return Optional.of(vevo);
             }
         }
-        return Optional.empty(); // Sikerestelen belépés
+        return Optional.empty();
     }
 
     /**
-     * SHA-512 egyirányú kriptográfiai titkosítás (hashing)
+     * SHA-512 egyirányú kriptográfiai titkosítás SÓZÁSSAL (Salting)
      */
-    private String hashPassword(String password) {
+    private String hashPasswordWithSalt(String password, String salt) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-512");
-            byte[] hashBytes = digest.digest(password.getBytes());
             
-            // Bájtok átalakítása 128 karakteres hexadecimális Stringgé
+            // Összefűzzük a nyers jelszót és az egyedi sót (emailt)
+            String saltedPassword = password + salt;
+            
+            byte[] hashBytes = digest.digest(saltedPassword.getBytes());
+            
             StringBuilder sb = new StringBuilder();
             for (byte b : hashBytes) {
                 sb.append(String.format("%02x", b));
             }
             return sb.toString();
         } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("Kritikus hiba: Az SHA-512 algoritmus nem található!", e);
+            throw new RuntimeException("Kritikus hiba: Az SHA-512 nem található!", e);
         }
     }
+
 }
