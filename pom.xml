@@ -1,0 +1,59 @@
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    
+    <!-- A korábban megadott egyedi azonosítóid -->
+    <groupId>hu.sajatnev.projekt</groupId>
+    <artifactId>vevokezelo-app</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <name>vevokezelo-app</name>
+    <description>Szeretnék összerakni egy webes mini alkalmazást, amiben van adatbázis, adateléreési réteg, alkalmazásszerver ami webszerveren fut, és webes kliens ami böngészőben fut. Ezt JAVA-ban írnám meg, Eclipse-ben. Egy oracle táblát listázna: VEVOK (VEVO_ID [Number] Primary key, KERESZTNEV [VARCHAR2 (50 BYTE)], VEZETEKNEV [VARCHAR2 (50 BYTE)], EMAIL [VARCHAR2 (100 BYTE)], VAROS [VARCHAR2 (50)], PW_HASH [VARCHAR2(128 BYTE)]). A felhesználónak be kellene jelentkezni email + password megadásával. A password értéket egyirányú kriptográfiai titkosítással (SHA-512 ) kellene tárolni a PW_HASH mezőben. Ha nincs regisztrálva a felhasználó, akkor regisztrálnia kellene email + password megadással, email cím ellenőrzéssel.</description>
+
+    <!-- 1. A Spring Boot Szülő projekt (Parent) -->
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.2.4</version> <!-- Vagy az aktuális stabil verzió -->
+        <relativePath/> 
+    </parent>
+
+    <properties>
+        <java.version>17</java.version>
+    </properties>
+
+    <dependencies>
+        <!-- 2. Webes réteg (MVC + Beágyazott Tomcat szerver) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <!-- 3. Thymeleaf (A View/Nézet sablonkezelője) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-thymeleaf</artifactId>
+        </dependency>
+
+        <!-- 4. Spring Data JPA (Az adatelérési réteg / Hibernate) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+
+        <!-- 5. Oracle JDBC Driver (Adatbázis kapcsolat) -->
+        <dependency>
+            <groupId>com.oracle.database.jdbc</groupId>
+            <artifactId>ojdbc11</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+</project>
