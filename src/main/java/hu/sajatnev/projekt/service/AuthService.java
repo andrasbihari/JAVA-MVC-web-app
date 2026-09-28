@@ -1,5 +1,6 @@
 package hu.sajatnev.projekt.service;
 
+
 import hu.sajatnev.projekt.model.Vevo;
 import hu.sajatnev.projekt.repository.VevoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +10,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Optional;
 import java.util.regex.Pattern;
+import java.util.Random;
 
 @Service
 public class AuthService {
@@ -80,6 +82,12 @@ public class AuthService {
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException("Kritikus hiba: Az SHA-512 nem található!", e);
         }
+    }
+    
+    public String generateVerificationCode() {
+        Random random = new Random();
+        int code = 100000 + random.nextInt(900000); // Biztosan 6 számjegyű lesz
+        return String.valueOf(code);
     }
 
 }

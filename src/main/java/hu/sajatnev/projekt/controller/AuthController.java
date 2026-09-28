@@ -43,31 +43,90 @@ public class AuthController {
             return "login"; // Hiba esetén újra megjelenítjük a login oldalt a hibaüzenettel
         }
     }
-
-    // 3. REGISZTRÁCIÓS FELÜLET (GET)
+    
+    // 3. REGISZTRÁCIÓS FELÜLET MEGJELENÍTÉSE (GET)
     @GetMapping("/register")
     public String showRegisterPage(Model model) {
-        model.addAttribute("vevo", new Vevo()); // Üres objektumot adunk át az űrlapnak
-        return "register"; // A register.html fájlt fogja keresni
+        model.addAttribute("vevo", new Vevo()); // Üres objektum az űrlapnak
+        return "register"; // A register.html-t fogja megnyitni
     }
 
-    // 4. REGISZTRÁCIÓ FELDOLGOZÁSA (POST)
+ // 3. REGISZTRÁCIÓ FELDOLGOZÁSA (1. LÉPÉS - KÓD KÜLDÉSE ÉS SESSION-BE MENTÉSE)
     @PostMapping("/register")
     public String handleRegister(@ModelAttribute Vevo vevo, 
                                  @RequestParam String password, 
+                                 HttpSession session,
                                  Model model) {
-        String result = authService.registerVevo(vevo, password);
+        // Ellenőrizzük az emailt, mint eddig
+        if (vevo.getEmail() == null || !vevo.getEmail().contains("@")) { // Használhatod a service regex-ét is
+            model.addAttribute("error", "Hiba: Érvénytelen email formátum!");
+            return "register";
+        }
+        if (vevoRepository.existsByEmail(vevo.getEmail())) {
+            model.addAttribute("error", "Hiba: Ez az email cím már regisztrálva van!");
+            return "register";
+        }
+
+        // Generálunk egy 6 számjegyű kódot
+        String verificationCode = authService.generateVerificationCode();
         
-        if ("SUCCESS".equals(result)) {
-            model.addAttribute("success", "Sikeres regisztráció! Most már bejelentkezhetsz.");
-            return "login"; // Átdobjuk a bejelentkező oldalra
+        // !!! ITT KÜLDENÉD KI AZ EMAILT VALÓSÁGBAN !!!
+        System.out.println("------ EMAIL SZIMULÁCIÓ ------");
+        System.out.println("Címzett: " + vevo.getEmail());
+        System.out.println("A regisztrációs kódod: " + verificationCode);
+        System.out.println("------------------------------");
+
+        // Eltároljuk a sessionben a vevőt, a jelszót és a generált kódot
+        session.setAttribute("tempVevo", vevo);
+        session.setAttribute("tempPassword", password);
+        session.setAttribute("authCode", verificationCode);
+
+        return "redirect:/verify-email"; // Átdobjuk a kódbeíró oldalra
+    }
+    
+ // 4. KÓDBEÍRÓ OLDAL MEGJELENÍTÉSE (GET)
+    @GetMapping("/verify-email")
+    public String showVerifyPage(HttpSession session) {
+        if (session.getAttribute("authCode") == null) {
+            return "redirect:/register";
+        }
+        return "verify"; // A verify.html oldalt fogja keresni
+    }
+
+
+ // 5. KÓD ELLENŐRZÉSE ÉS VÉGLEGES MENTÉS (POST)
+    @PostMapping("/verify-email")
+    public String handleVerification(@RequestParam String code, 
+                                     HttpSession session, 
+                                     Model model) {
+        String sessionCode = (String) session.getAttribute("authCode");
+        Vevo tempVevo = (Vevo) session.getAttribute("tempVevo");
+        String tempPassword = (String) session.getAttribute("tempPassword");
+
+        if (sessionCode == null || tempVevo == null) {
+            return "redirect:/register";
+        }
+
+        // Ha a felhasználó által beírt kód egyezik a sessionben lévővel
+        if (sessionCode.equals(code)) {
+            // Csak MOST mentünk véglegesen az Oracle-be a sózott logikáddal!
+            authService.registerVevo(tempVevo, tempPassword);
+            
+            // Takarítás: töröljük az ideiglenes adatokat a sessionből
+            session.removeAttribute("authCode");
+            session.removeAttribute("tempVevo");
+            session.removeAttribute("tempPassword");
+
+            model.addAttribute("success", "Sikeres email ellenőrzés és regisztráció! Most már beléphetsz.");
+            return "login";
         } else {
-            model.addAttribute("error", result); // A service-ből visszakapott hibaüzenet (pl. rossz email)
-            return "register"; // Hiba esetén marad a regisztrációs oldalon
+            model.addAttribute("error", "Hibás ellenőrző kód! Próbáld újra.");
+            return "verify";
         }
     }
 
-    // 5. VÉDETT VEVŐLISTA FELÜLET (GET)
+
+    // 6. VÉDETT VEVŐLISTA FELÜLET (GET)
     @GetMapping("/vevok")
     public String listVevok(HttpSession session, Model model) {
         // Ellenőrizzük, hogy be van-e lépve a felhasználó (létezik-e a session)
