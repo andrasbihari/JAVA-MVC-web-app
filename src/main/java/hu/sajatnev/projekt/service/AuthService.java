@@ -4,6 +4,8 @@ package hu.sajatnev.projekt.service;
 import hu.sajatnev.projekt.model.Vevo;
 import hu.sajatnev.projekt.repository.VevoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 import java.security.MessageDigest;
@@ -17,14 +19,26 @@ public class AuthService {
 
     @Autowired
     private VevoRepository vevoRepository;
+    
+    @Autowired
+    private JavaMailSender mailSender; // <--- A Spring automatikusan beinjektálja az SMTP beállítások alapján
 
     // Regisztrációs email ellenőrző minta (Regex)
     private static final String EMAIL_REGEX = "^[A-Za-z0-9+_.-]+@(.+)$";
     private static final Pattern emailPattern = Pattern.compile(EMAIL_REGEX);
 
-    /**
-     * Regisztrál egy új vevőt az adatbázisba.
-     */
+    // ÚJ METÓDUS: Ez küldi el a valós e-mailt a hálózaton keresztül
+    public void sendEmail(String toEmail, String subject, String body) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom("A_TE_GMAIL_CIMED@gmail.com"); // Egyeznie kell a properties-ben megadott címmel
+        message.setTo(toEmail);
+        message.setSubject(subject);
+        message.setText(body);
+        
+        mailSender.send(message); // Ez a sor indítja el a valós kiküldést
+    }
+
+    
     /**
      * Regisztrál egy új vevőt az adatbázisba - SÓZOTT verzió
      */

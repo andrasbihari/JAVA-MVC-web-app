@@ -70,11 +70,21 @@ public class AuthController {
         // Generálunk egy 6 számjegyű kódot
         String verificationCode = authService.generateVerificationCode();
         
-        // !!! ITT KÜLDENÉD KI AZ EMAILT VALÓSÁGBAN !!!
-        System.out.println("------ EMAIL SZIMULÁCIÓ ------");
-        System.out.println("Címzett: " + vevo.getEmail());
-        System.out.println("A regisztrációs kódod: " + verificationCode);
-        System.out.println("------------------------------");
+        // A SIMA TEXT KIÍRÁS HELYETT MOST MEGHÍVJUK A VALÓDI LEVÉLKÜLDÉST:
+        try {
+            String emailSubject = "Regisztráció megerősítése - Vevőkezelő";
+            String emailBody = "Kedves " + vevo.getKeresztnev() + "!\n\n"
+                             + "Köszönjük a regisztrációdat.\n"
+                             + "Az Ön 6 számjegyű ellenőrző kódja: " + verificationCode + "\n\n"
+                             + "Kérjük, írja be ezt a kódot a felületen a regisztráció véglegesítéséhez.";
+                             
+            authService.sendEmail(vevo.getEmail(), emailSubject, emailBody);
+            
+        } catch (Exception e) {
+            e.printStackTrace(); // Ha hiba történik (pl. rossz jelszó vagy hálózati hiba), a konzolon látni fogod
+            model.addAttribute("error", "Kritikus hiba: Az ellenőrző e-mailt nem sikerült kiküldeni!");
+            return "register";
+        }
 
         // Eltároljuk a sessionben a vevőt, a jelszót és a generált kódot
         session.setAttribute("tempVevo", vevo);
