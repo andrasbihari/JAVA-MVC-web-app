@@ -7,7 +7,7 @@
     <artifactId>vevokezelo-app</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>vevokezelo-app</name>
-    <description>Szeretnék összerakni egy webes mini alkalmazást, amiben van adatbázis, adateléreési réteg, alkalmazásszerver ami webszerveren fut, és webes kliens ami böngészőben fut. Ezt JAVA-ban írnám meg, Eclipse-ben. Egy oracle táblát listázna: VEVOK (VEVO_ID [Number] Primary key, KERESZTNEV [VARCHAR2 (50 BYTE)], VEZETEKNEV [VARCHAR2 (50 BYTE)], EMAIL [VARCHAR2 (100 BYTE)], VAROS [VARCHAR2 (50)], PW_HASH [VARCHAR2(128 BYTE)]). A felhesználónak be kellene jelentkezni email + password megadásával. A password értéket egyirányú kriptográfiai titkosítással (SHA-512 ) kellene tárolni a PW_HASH mezőben. Ha nincs regisztrálva a felhasználó, akkor regisztrálnia kellene email + password megadással, email cím ellenőrzéssel.</description>
+    <description> webes mini app</description>
 
     <!-- 1. A Spring Boot Szülő projekt (Parent) -->
     <parent>
@@ -46,6 +46,12 @@
             <artifactId>ojdbc11</artifactId>
             <scope>runtime</scope>
         </dependency>
+
+        <dependency>
+		    <groupId>org.springframework.boot</groupId>
+		    <artifactId>spring-boot-starter-mail</artifactId>
+		</dependency>
+        
     </dependencies>
 
     <build>
