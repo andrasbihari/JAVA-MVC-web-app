@@ -2,51 +2,64 @@
 <html xmlns:th="http://thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vevők Listája</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 30px; background-color: #f4f4f9; }
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        table { width: 100%; border-collapse: collapse; background: white; box-shadow: 0 0 10px rgba(0,0,0,0.05); }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
-        th { background-color: #343a40; color: white; }
-        tr:hover { background-color: #f1f1f1; }
-        .logout-btn { padding: 8px 15px; background-color: #dc3545; color: white; text-decoration: none; border-radius: 4px; }
-        .logout-btn:hover { background-color: #c82333; }
-        .user-info { font-style: italic; color: #555; }
-    </style>
+<!--    <link href="https://jsdelivr.net" rel="stylesheet">-->
+	<link th:href="@{/bootstrap.min.css}" rel="stylesheet">
 </head>
-<body>
-<div class="header">
-    <h2>Regisztrált Vevők Adatbázisa (Oracle)</h2>
-    <div>
-        <span class="user-info">Üdv, <span th:text="${currentUser.vezeteknev + ' ' + currentUser.keresztnev}">Felhasználó</span>! </span>
-        <a th:href="@{/logout}" class="logout-btn">Kijelentkezés</a>
+<body class="bg-light">
+
+<!-- Navigációs sáv (Header) -->
+<nav class="navbar navbar-dark bg-dark shadow mb-4">
+    <div class="container">
+        <span class="navbar-brand mb-0 h1 fw-bold text-truncate">
+            <span class="text-info">Oracle DB</span> Vevőkezelő Rendszer
+        </span>
+        <div class="d-flex align-items-center">
+            <span class="navbar-text text-white me-3 d-none d-sm-inline">
+                Üdv, <strong class="text-warning" th:text="${currentUser.vezeteknev + ' ' + currentUser.keresztnev}">Felhasználó</strong>!
+            </span>
+            <a th:href="@{/logout}" class="btn btn-outline-danger btn-sm fw-bold">Kijelentkezés</a>
+        </div>
+    </div>
+</nav>
+
+<!-- Fő tartalom -->
+<div class="container">
+    <div class="card shadow-sm border-0 rounded-3">
+        <div class="card-body p-4">
+            <h4 class="mb-4 fw-bold text-secondary text-center text-sm-start">Regisztrált Vevők Adatbázisa</h4>
+            
+            <div class="table-responsive">
+                <table class="table table-striped table-hover align-middle mb-0">
+                    <thead class="table-dark">
+                        <tr>
+                            <th scope="col" style="width: 10%">ID</th>
+                            <th scope="col">Vezetéknév</th>
+                            <th scope="col">Keresztnév</th>
+                            <th scope="col">Email cím</th>
+                            <th scope="col">Város</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Végigiterálunk a listán -->
+                        <tr th:each="v : ${vevokLista}">
+                            <td class="fw-bold text-muted" th:text="${v.vevoId}">1</td>
+                            <td th:text="${v.vezeteknev}">Minta</td>
+                            <td th:text="${v.keresztnev}">János</td>
+                            <td th:text="${v.email}">janos@minta.hu</td>
+                            <td th:text="${v.varos}">Budapest</td>
+                        </tr>
+                        <!-- Ha üres a lista -->
+                        <tr th:if="${#lists.isEmpty(vevokLista)}">
+                            <td colspan="5" class="text-center text-muted py-4">Nincs még regisztrált vevő az adatbázisban.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 </div>
 
-<table>
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Vezetéknév</th>
-            <th>Keresztnév</th>
-            <th>Email cím</th>
-            <th>Város</th>
-        </tr>
-    </thead>
-    <tbody>
-        <!-- Végigiterálunk a Controllerből kapott listán -->
-        <tr th:each="v : ${vevokLista}">
-            <td th:text="${v.vevoId}">1</td>
-            <td th:text="${v.vezeteknev}">Minta</td>
-            <td th:text="${v.keresztnev}">János</td>
-            <td th:text="${v.email}">janos@minta.hu</td>
-            <td th:text="${v.varos}">Budapest</td>
-        </tr>
-        <tr th:if="${#lists.isEmpty(vevokLista)}">
-            <td colspan="5" style="text-align: center;">Nincs még regisztrált vevő az adatbázisban.</td>
-        </tr>
-    </tbody>
-</table>
 </body>
 </html>

@@ -2,53 +2,62 @@
 <html xmlns:th="http://thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Regisztráció</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 50px; background-color: #f4f4f9; }
-        .container { max-width: 400px; margin: auto; padding: 20px; background: white; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        .form-group { margin-bottom: 12px; }
-        .form-group label { display: block; margin-bottom: 5px; }
-        .form-group input { width: 95%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
-        button { width: 100%; padding: 10px; background-color: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; }
-        button:hover { background-color: #218838; }
-        .error { color: red; margin-bottom: 15px; }
-        .link { text-align: center; margin-top: 15px; }
-    </style>
+<!--    <link href="https://jsdelivr.net" rel="stylesheet">-->
+	<link th:href="@{/bootstrap.min.css}" rel="stylesheet">
 </head>
-<body>
-<div class="container">
-    <h2>Vevő Regisztráció</h2>
-    
-    <div th:if="${error}" class="error" th:text="${error}"></div>
+<body class="bg-light">
 
-    <form th:action="@{/register}" th:object="${vevo}" method="post">
-        <div class="form-group">
-            <label>Vezetéknév:</label>
-            <input type="text" th:field="*{vezeteknev}" required />
+<div class="container">
+    <div class="row justify-content-center align-items-center min-vh-100">
+        <div class="col-md-7 col-lg-5">
+            <div class="card shadow border-0 rounded-3 my-5">
+                <div class="card-body p-4 p-sm-5">
+                    <h3 class="card-title text-center mb-4 fw-bold text-success">Vevő Regisztráció</h3>
+                    
+                    <div th:if="${error}" class="alert alert-danger py-2 text-center small" role="alert" th:text="${error}"></div>
+
+                    <form th:action="@{/register}" th:object="${vevo}" method="post">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label small fw-bold text-muted">Vezetéknév</label>
+                                <input type="text" th:field="*{vezeteknev}" class="form-control" required />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label small fw-bold text-muted">Keresztnév</label>
+                                <input type="text" th:field="*{keresztnev}" class="form-control" required />
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-muted">Email cím</label>
+                            <input type="email" th:field="*{email}" class="form-control" placeholder="pelda@email.hu" required />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-muted">Város</label>
+                            <input type="text" th:field="*{varos}" class="form-control" required />
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label small fw-bold text-muted">Jelszó</label>
+                            <input type="password" name="password" class="form-control" placeholder="••••••••" required />
+                        </div>
+
+                        <button class="btn btn-success w-100 text-uppercase fw-bold py-2" type="submit">Regisztráció</button>
+                    </form>
+                    
+                    <hr class="my-4">
+                    
+                    <div class="text-center small">
+                        Már van fiókod? <a th:href="@{/login}" class="text-decoration-none fw-bold text-success">Jelentkezz be</a>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="form-group">
-            <label>Keresztnév:</label>
-            <input type="text" th:field="*{keresztnev}" required />
-        </div>
-        <div class="form-group">
-            <label>Email:</label>
-            <input type="email" th:field="*{email}" required />
-        </div>
-        <div class="form-group">
-            <label>Város:</label>
-            <input type="text" th:field="*{varos}" required />
-        </div>
-        <div class="form-group">
-            <label>Jelszó:</label>
-            <!-- A sima jelszót külön paraméterként olvassa be a Controller, nem a vevo objektumba menti -->
-            <input type="password" name="password" required />
-        </div>
-        <button type="submit">Regisztráció</button>
-    </form>
-    
-    <div class="link">
-        Már van fiókod? <a th:href="@{/login}">Jelentkezz be</a>
     </div>
 </div>
+
 </body>
 </html>
