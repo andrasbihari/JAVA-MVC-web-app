@@ -62,10 +62,18 @@ public class AuthController {
             model.addAttribute("error", "Hiba: Érvénytelen email formátum!");
             return "register";
         }
+        
+        // Email egyediség ellenőrzése (hogy ne küldjünk feleslegesen kódot)
         if (vevoRepository.existsByEmail(vevo.getEmail())) {
             model.addAttribute("error", "Hiba: Ez az email cím már regisztrálva van!");
             return "register";
         }
+        
+        //JELZŐHOSSZ ELLENŐRZÉSE
+        if (password == null || password.length() < 8) {
+            model.addAttribute("error", "Hiba: A jelszónak legalább 8 karakter hosszúnak kell lennie!");
+            return "register";
+        }	
 
         // Generálunk egy 6 számjegyű kódot
         String verificationCode = authService.generateVerificationCode();

@@ -43,14 +43,7 @@ public class AuthService {
      * Regisztrál egy új vevőt az adatbázisba - SÓZOTT verzió
      */
     public String registerVevo(Vevo vevo, String plainPassword) {
-        if (vevo.getEmail() == null || !emailPattern.matcher(vevo.getEmail()).matches()) {
-            return "Hiba: Érvénytelen email formátum!";
-        }
-
-        if (vevoRepository.existsByEmail(vevo.getEmail())) {
-            return "Hiba: Ez az email cím már regisztrálva van!";
-        }
-
+    	
         // A jelszó hasheléséhez most átadjuk az email címet is, mint egyedi "sót"
         String hashedPassword = hashPasswordWithSalt(plainPassword, vevo.getEmail());
         vevo.setPwHash(hashedPassword);
